@@ -2,7 +2,6 @@ package com.handson.basic.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
-import org.springframework.data.annotation.Id;
 
 import java.io.Serializable;
 import java.time.Instant;
