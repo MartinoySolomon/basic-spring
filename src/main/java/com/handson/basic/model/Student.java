@@ -1,11 +1,15 @@
 package com.handson.basic.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 
 import java.io.Serializable;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 @Entity
 @Table(name="student")
@@ -25,6 +29,12 @@ public class Student implements Serializable {
 
     private LocalDate birthDate;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+    @JsonProperty("birthDate")
+    public LocalDateTime calcBirthDate() {
+        return birthDate.atStartOfDay(ZoneId.systemDefault()).toLocalDateTime();
+    }
+
     @Min(100)
     @Max(800)
     private Integer satScore;
@@ -42,6 +52,11 @@ public class Student implements Serializable {
     @PrePersist
     private void onCreate() {
         this.createdAt = Instant.now();
+    }
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonProperty("createdAt")
+    public LocalDateTime calcCreatedAt() {
+        return LocalDateTime.ofInstant(createdAt, ZoneId.systemDefault());
     }
 
     public @Size(max = 20) String getPhone() {
