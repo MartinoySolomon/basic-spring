@@ -1,5 +1,6 @@
 package com.handson.basic.model;
 
+
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
@@ -37,6 +38,7 @@ public class Student implements Serializable {
         return birthDate.atStartOfDay(ZoneId.systemDefault()).toLocalDateTime();
     }
 
+
     @Min(100)
     @Max(800)
     private Integer satScore;
@@ -55,15 +57,27 @@ public class Student implements Serializable {
     private void onCreate() {
         this.createdAt = Instant.now();
     }
+
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     @JsonProperty("createdAt")
     public LocalDateTime calcCreatedAt() {
         return LocalDateTime.ofInstant(createdAt, ZoneId.systemDefault());
     }
 
-    public @Size(max = 20) String getPhone() {
-        return phone;
+    @OneToMany(mappedBy = "student", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
+    private Collection<StudentGrade> studentGrades = new ArrayList<>();
+
+    public Collection<StudentGrade> getStudentGrades() {
+        return studentGrades;
     }
+
+    public void setStudentGrades(Collection<StudentGrade> studentGrades) {
+        this.studentGrades = studentGrades;
+    }
+
+
+
+
 
     public Long getId() {
         return id;
@@ -81,11 +95,11 @@ public class Student implements Serializable {
         this.createdAt = createdAt;
     }
 
-    public @NotEmpty @Size(max = 60) String getFullname() {
+    public String getFullname() {
         return fullname;
     }
 
-    public void setFullname(@NotEmpty @Size(max = 60) String fullname) {
+    public void setFullname(String fullname) {
         this.fullname = fullname;
     }
 
@@ -97,47 +111,37 @@ public class Student implements Serializable {
         this.birthDate = birthDate;
     }
 
-    public @Min(100) @Max(800) Integer getSatScore() {
+    public Integer getSatScore() {
         return satScore;
     }
 
-    public void setSatScore(@Min(100) @Max(800) Integer satScore) {
+    public void setSatScore(Integer satScore) {
         this.satScore = satScore;
     }
 
-    public @DecimalMin("30") @DecimalMax("110") Double getGraduationScore() {
+    public Double getGraduationScore() {
         return graduationScore;
     }
 
-    public void setGraduationScore(@DecimalMin("30") @DecimalMax("110") Double graduationScore) {
+    public void setGraduationScore(Double graduationScore) {
         this.graduationScore = graduationScore;
     }
 
-    public void setPhone(@Size(max = 20) String phone) {
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
         this.phone = phone;
     }
 
-    public @Size(max = 500) String getProfilePicture() {
+    public String getProfilePicture() {
         return profilePicture;
     }
 
-    public void setProfilePicture(@Size(max = 500) String profilePicture) {
+    public void setProfilePicture(String profilePicture) {
         this.profilePicture = profilePicture;
     }
-
-    @OneToMany(mappedBy = "student", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
-    private Collection<StudentGrade> studentGrades = new ArrayList<>();
-
-    public Collection<StudentGrade> getStudentGrades() {
-        return studentGrades;
-    }
-
-    public void setStudentGrades(Collection<StudentGrade> studentGrades) {
-        this.studentGrades = studentGrades;
-    }
-
-
-
 
 
     public static final class StudentBuilder {

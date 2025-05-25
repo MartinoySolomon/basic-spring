@@ -30,11 +30,11 @@ public class StudentIn implements Serializable {
     @Size(max = 20)
     private String phone;
 
-    public @Size(max = 60) String getFullname() {
+    public String getFullname() {
         return fullname;
     }
 
-    public void setFullname(@Size(max = 60) String fullname) {
+    public void setFullname(String fullname) {
         this.fullname = fullname;
     }
 
@@ -46,27 +46,27 @@ public class StudentIn implements Serializable {
         this.birthDate = birthDate;
     }
 
-    public @Min(100) @Max(800) Integer getSatScore() {
+    public Integer getSatScore() {
         return satScore;
     }
 
-    public void setSatScore(@Min(100) @Max(800) Integer satScore) {
+    public void setSatScore(Integer satScore) {
         this.satScore = satScore;
     }
 
-    public @Min(30) @Max(110) Double getGraduationScore() {
+    public Double getGraduationScore() {
         return graduationScore;
     }
 
-    public void setGraduationScore(@Min(30) @Max(110) Double graduationScore) {
+    public void setGraduationScore(Double graduationScore) {
         this.graduationScore = graduationScore;
     }
 
-    public @Size(max = 20) String getPhone() {
+    public String getPhone() {
         return phone;
     }
 
-    public void setPhone(@Size(max = 20) String phone) {
+    public void setPhone(String phone) {
         this.phone = phone;
     }
 
