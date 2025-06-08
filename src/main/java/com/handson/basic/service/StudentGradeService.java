@@ -6,6 +6,7 @@ import com.handson.basic.repo.StudentGradeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -29,6 +30,10 @@ public class StudentGradeService {
 
     public void delete(StudentGrade studentGrade) {
         repository.delete(studentGrade);
+    }
+
+    public List<StudentGrade> getStudentWithScoreHigherThan(Integer score){
+        return repository.findAllByCourseScoreGreaterThan(score);
     }
 
 }

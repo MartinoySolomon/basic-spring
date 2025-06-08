@@ -101,8 +101,8 @@ public class StudentOut {
     }
     public void setProfilepicture(String profilepicture) {
         this.profilepicture = profilepicture;
-    }
 
+    }
     public static StudentOut of(Student student, AWSService awsService) {
         StudentOut res = new StudentOut();
         res.id = student.getId();
@@ -116,4 +116,6 @@ public class StudentOut {
 
         return res;
     }
+
+
 }

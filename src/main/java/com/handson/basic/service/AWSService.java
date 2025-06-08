@@ -82,6 +82,4 @@ public class AWSService {
             return fileUrl; // fallback to raw path if URL fails
         }
     }
-
-
 }

@@ -1,18 +1,23 @@
 package com.handson.basic.service;
 
+
 import com.handson.basic.model.User;
 import com.handson.basic.repo.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.*;
 import org.springframework.stereotype.Service;
 
+
 import java.util.ArrayList;
+
 
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
 
+
     @Autowired
     private UserRepository userRepo;
+
 
     public void save(String username, String encodedPassword) {
         User user = new User();
@@ -20,6 +25,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         user.setPassword(encodedPassword);
         userRepo.save(user);
     }
+
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {

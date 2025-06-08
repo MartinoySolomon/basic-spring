@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.handson.basic.DTO.StudentDetailsOut;
 import com.handson.basic.DTO.StudentIn;
 import com.handson.basic.DTO.StudentOut;
-import com.handson.basic.error.StudentNotFoundException;
 import com.handson.basic.model.*;
 import com.handson.basic.service.AWSService;
 import com.handson.basic.service.SmsService;
@@ -13,7 +12,6 @@ import com.handson.basic.service.StudentService;
 import com.handson.basic.util.FPS;
 import jakarta.persistence.EntityManager;
 import jakarta.validation.constraints.Min;
-import org.apache.commons.collections4.IteratorUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -32,7 +30,6 @@ import static com.handson.basic.util.FPS.aFPS;
 import static com.handson.basic.util.FPSCondition.FPSConditionBuilder.aFPSCondition;
 import static com.handson.basic.util.FPSField.FPSFieldBuilder.aFPSField;
 import static com.handson.basic.util.Strings.likeLowerOrNull;
-import static org.springframework.util.StringUtils.isEmpty;
 
 @RestController
 @RequestMapping("/api/students")
@@ -40,6 +37,9 @@ public class StudentsController {
 
     @Autowired
     StudentService studentService;
+
+    @Autowired
+    AWSService awsService;
 
     @Autowired
     EntityManager em;
@@ -50,8 +50,30 @@ public class StudentsController {
     @Autowired
     SmsService smsService;
 
-    @Autowired
-    AWSService awsService;
+    @RequestMapping(value = "/sms/all", method = RequestMethod.POST)
+    public ResponseEntity<?> smsAll(@RequestParam String text) {
+        new Thread(() -> {
+            studentService.all()
+                    .forEach(student -> {String phone = student.getPhone();
+                        if (phone != null && !phone.trim().isEmpty()) {
+                            smsService.send(text, phone);
+                        }
+                    });
+        }).start();
+        return new ResponseEntity<>("SENDING", HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/{id}/image", method = RequestMethod.PUT ,  consumes = "multipart/form-data")
+    public ResponseEntity<?> uploadStudentImage(@PathVariable Long id,  @RequestParam("image") MultipartFile image)
+    {
+        Optional<Student> dbStudent = studentService.findById(id);
+        if (dbStudent.isEmpty()) throw new RuntimeException("Student with id: " + id + " not found");
+        String bucketPath = "apps/noyale/student-" +  id + ".png" ; // HM : change the bucket to your
+        awsService.putInBucket(image, bucketPath);
+        dbStudent.get().setProfilePicture(bucketPath);
+        Student updatedStudent = studentService.save(dbStudent.get());
+        return new ResponseEntity<>(StudentOut.of(updatedStudent, awsService) , HttpStatus.OK);
+    }
 
     @RequestMapping(value = "", method = RequestMethod.GET)
     public ResponseEntity<PaginationAndList> search(
@@ -107,41 +129,11 @@ public class StudentsController {
         return ResponseEntity.ok(res);
     }
 
-    @RequestMapping(value = "/{id}/image", method = RequestMethod.PUT, consumes = "multipart/form-data")
-    public ResponseEntity<?> uploadStudentImage(
-            @PathVariable Long id,
-            @RequestParam("image") MultipartFile image
-    ) {
-        Optional<Student> dbStudent = studentService.findById(id);
-        if (dbStudent.isEmpty()) throw new RuntimeException("Student with id: " + id + " not found");
-
-        String bucketPath = "apps/advaa/student-" + id + ".png";
-        awsService.putInBucket(image, bucketPath);
-        dbStudent.get().setProfilePicture(bucketPath);
-        Student updatedStudent = studentService.save(dbStudent.get());
-
-        return new ResponseEntity<>(StudentOut.of(updatedStudent, awsService), HttpStatus.OK);
-    }
-
-    @RequestMapping(value = "/sms/all", method = RequestMethod.POST)
-    public ResponseEntity<?> smsAll(@RequestParam String text) {
-        new Thread(() -> {
-            studentService.all()
-                    .forEach(student -> {String phone = student.getPhone();
-                        if (phone != null && !phone.trim().isEmpty()) {
-                            smsService.send(text, phone);
-                        }
-                    });
-        }).start();
-        return new ResponseEntity<>("SENDING", HttpStatus.OK);
-    }
-
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
     public ResponseEntity<?> getOneStudent(@PathVariable Long id) {
         Optional<Student> optional = studentService.findById(id);
         if (optional.isEmpty())
-//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Student not found");
-            throw new StudentNotFoundException(id);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Student not found");
 
         Student student = optional.get();
 

@@ -35,7 +35,7 @@ public class SmsService {
         payload.put("key", ACCOUNT_KEY);
         payload.put("user", ACCOUNT_USER);
         payload.put("pass", ACCOUNT_PASS);
-        payload.put("sender", "MY API"); // Must match your registered number if free tier
+        payload.put("sender", ACCOUNT_USER); // Must match your registered number if free tier
         payload.put("recipient", phoneNumber);
         payload.put("msg", text);
 
